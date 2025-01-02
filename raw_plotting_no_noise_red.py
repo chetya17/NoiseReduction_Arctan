@@ -1,4 +1,4 @@
-#RAW AUDIO PLOTTING,NO NOISE REDUCTION.
+#RAW AUDIO PLOTTING,NO NOISE REDUCTION. Code written just to verify that the audio is being read correctly and is being outputted correctly.
 
 import pyaudio
 import numpy as np

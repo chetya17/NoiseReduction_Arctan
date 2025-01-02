@@ -1,3 +1,4 @@
+#Testing the transformer model that I trained. Doesn't work. Output audio is completely silent/blank.
 import torch
 import torchaudio
 from datasets import load_dataset
@@ -16,30 +17,9 @@ def load_saved_model(model_path, device):
     model.eval()
     return model
 
-# def spectrogram_to_audio(spectrogram, length=None):
-#     # Create Griffin-Lim transform for phase reconstruction
-#     griffin_lim = torchaudio.transforms.GriffinLim(
-#         n_fft=512,
-#         hop_length=256,
-#         power=2.0,
-#         n_iter=32
-#     )
-    
-#     # Ensure spectrogram is in the correct shape [freq, time]
-#     if spectrogram.shape[0] != 257:
-#         spectrogram = spectrogram.transpose(-1, -2)
-    
-#     # Convert spectrogram to audio using Griffin-Lim algorithm
-#     waveform = griffin_lim(spectrogram)
-    
-#     # Trim to original length if provided
-#     if length is not None:
-#         waveform = waveform[:length]
-    
-#     return waveform
 def spectrogram_to_audio(spectrogram, length=None):
     # Add small epsilon to avoid zero values
-    print("Cleannnedddddddddddddddddddddddd spec",spectrogram)
+    print("Cleaned spectrogram ----------------",spectrogram)
     spectrogram = spectrogram + 1e-6
     
     # Create Griffin-Lim transform for phase reconstruction

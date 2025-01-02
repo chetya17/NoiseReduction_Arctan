@@ -1,3 +1,4 @@
+#Using a pretrained VAD model to clean audio,works perfectly well,BUT NOT REAL TIME.
 import numpy as np
 import torch
 import torchaudio
@@ -39,11 +40,23 @@ class AudioProcessor:
         if self.noise_profile is None:
             return audio_chunk
 
-        _, current_psd = signal.welch(audio_chunk, self.sample_rate, nperseg=512)
-        cleaned_psd = np.maximum(current_psd - self.noise_profile, 0)
-        _, cleaned_audio = signal.istft(np.sqrt(cleaned_psd))
-        return cleaned_audio
+        # Compute the STFT of the audio chunk
+        f, t, Zxx = signal.stft(audio_chunk, self.sample_rate, nperseg=512)
 
+        # Estimate the magnitude and phase
+        magnitude = np.abs(Zxx)
+        phase = np.angle(Zxx)
+
+        # Perform spectral subtraction on the magnitude
+        cleaned_magnitude = np.maximum(magnitude - np.sqrt(self.noise_profile[:, None]), 0)
+
+        # Reconstruct the complex STFT with the original phase
+        cleaned_stft = cleaned_magnitude * np.exp(1j * phase)
+
+        # Compute the inverse STFT to get the time-domain signal
+        _, cleaned_audio = signal.istft(cleaned_stft, self.sample_rate, nperseg=512)
+
+        return cleaned_audio
     def detect_voice_activity(self, audio_chunk):
         """
         Detect voice activity using the VAD model.
@@ -98,6 +111,6 @@ class AudioProcessor:
 # Example Usage
 if __name__ == "__main__":
     processor = AudioProcessor()
-    input_audio_path = "original_noisy.wav"
-    output_audio_path = "cleaned_audio2.wav"
+    input_audio_path = "./original_noisy.wav"
+    output_audio_path = "./cleaned_audiotesting.wav"
     processor.process_audio_file(input_audio_path, output_audio_path)
